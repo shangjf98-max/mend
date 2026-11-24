@@ -679,6 +679,10 @@ function parseV4a(lines: string[], strict: boolean): Edit[] {
           chunks.push(cur);
           cur = null;
         } else if (text === '' || text[0] === ' ' || text[0] === '-' || text[0] === '+') {
+          // SPEC.md section 8: a chunk starts at an @@ line, or, for the first chunk,
+          // at a body line. A body line after an earlier chunk ended (*** End of File)
+          // starts no chunk, so it is any other line: a parse fault.
+          if (cur === null && chunks.length > 0) throw new Exit2(`error: parse ${num}`);
           if (cur === null) cur = { anchor: null, body: [], eof: false };
           cur.body.push(text);
         } else {
